@@ -1,0 +1,38 @@
+output: Compose
+tasks:
+  Input:
+    run: convert
+    inputs: "{ $.Invocation.Inputs.default }"
+  Compare:
+    run: if
+    inputs:
+      if: "{ $.Tasks.Input.Output > 10 }"
+      then:
+        run: noop
+        inputs: "{ $.Tasks.Input.Output % 10 }"
+      else: "{ $.Tasks.Input.Output }"
+    requires:
+      - Input
+  Loop:
+    run: repeat
+    inputs:
+      times: "{ 10 - $.Tasks.Compare.Output }"
+      do:
+        run: javascript
+        inputs:
+          _prev:
+            num: 1
+          args:
+            num: "{ task().Inputs._prev.num }"
+          expr: "({ 'num': num * 2 })"
+    requires:
+      - Compare
+  Compose:
+    run: compose
+    inputs: "{ $.Tasks.Loop.Output.num }"
+    requires:
+      - Loop
+
+# fission fn create --name complex --env workflow --src complex.wf.yaml
+# fission fn delete --name complex
+# fission fn test --name complex -b "12"

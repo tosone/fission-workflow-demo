@@ -1,0 +1,41 @@
+output: Compose
+tasks:
+  Input:
+    run: convert
+    inputs: "{ $.Invocation.Inputs.default }"
+  Random:
+    run: random
+    inputs: "{ $.Invocation.Inputs.default }"
+    requires:
+      - Input
+  While:
+    run: repeat
+    inputs:
+      times: "{ parseInt($.Tasks.Input.Output) - parseInt($.Invocation.Inputs.default) > 0 ? parseInt($.Tasks.Input.Output) - parseInt($.Invocation.Inputs.default) : parseInt($.Invocation.Inputs.default) - parseInt($.Tasks.Input.Output) }"
+      do:
+        run: javascript
+        inputs:
+          _prev:
+            times: 1
+            first: "{ parseInt($.Tasks.Input.Output) }"
+            dest: "{ $.Tasks.Random.Output }"
+          args:
+            times: "{ task().Inputs._prev.times }"
+            first: "{ task().Inputs._prev.first }"
+            dest: "{ $.Tasks.Random.Output }"
+          expr: "({
+            'times': times + 1,
+            'first': first + 1,
+            'dest': dest
+          })"
+    requires:
+      - Random
+  Compose:
+    run: compose
+    inputs: "{ $.Tasks.While.Output }"
+    requires:
+      - While
+
+# fission fn create --name guess --env workflow --src guess.wf.yaml
+# fission fn delete --name guess
+# fission fn test --name guess -b "12"

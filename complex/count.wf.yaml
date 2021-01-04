@@ -1,0 +1,19 @@
+output: Response
+tasks:
+  CountUntil:
+    run: while
+    inputs:
+      expr: "{ !task().Inputs._prev || task().Inputs._prev < 5 }"
+      limit: 10
+      do:
+        run: noop
+        inputs: "{ (task().Inputs._prev || 0) + 1 }"
+  Response:
+    run: compose
+    inputs: "{$.Tasks.CountUntil.Output}"
+    requires:
+      - CountUntil
+
+# fission fn create --name count --env workflow --src count.wf.yaml
+# fission fn delete --name count
+# fission fn test --name count

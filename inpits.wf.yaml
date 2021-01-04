@@ -1,0 +1,9 @@
+output: Printer
+tasks:
+  Printer:
+    run: dump
+    inputs:
+      body: "{ param('body') }"
+      headers: "{ param('headers') }"
+      method: "{ param('method') }"
+      query: "{ param('query') }"

@@ -1,0 +1,9 @@
+output: Random
+tasks:
+  Random:
+    run: random
+    inputs: { param() }
+
+# fission fn create --name body --env workflow --src body.wf.yaml
+# fission fn delete --name body
+# fission fn test --name body

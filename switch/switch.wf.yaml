@@ -1,0 +1,12 @@
+output: RespondToInput
+tasks:
+  RespondToInput:
+    run: switch
+    inputs:
+      switch: "{ param() }"
+      cases:
+      - case: test1
+        action: { param().length }
+      - case: test2
+        action: got test2
+      default: got default

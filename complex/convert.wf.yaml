@@ -1,0 +1,19 @@
+output: Compare
+tasks:
+  Random:
+    run: convert
+    inputs: "{ $.Invocation.Inputs.default }"
+  Compare:
+    run: if
+    inputs:
+      if: "{ $.Tasks.Random.Output > 10 }"
+      then:
+        run: noop
+        inputs: "{ $.Tasks.Random.Output % 10 }"
+      else: "{ $.Tasks.Random.Output }"
+    requires:
+      - Random
+
+# fission fn create --name convert-wf --env workflow --src convert.wf.yaml
+# fission fn delete --name convert-wf
+# fission fn test --name convert-wf
